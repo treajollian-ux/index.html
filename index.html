@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏝️ لعبة البقاء على قيد الحياة - Survival Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .health { color: #ff6b6b; }
+        .hunger { color: #ffd93d; }
+        .thirst { color: #4ecdc4; }
+        .energy { color: #6c5ce7; }
+        
+        .inventory {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .inventory-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .inventory-item {
+            background: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+        
+        .ad-space {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: #2c3e50;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 25px 0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .game-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .action-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-message {
+            background: rgba(241, 196, 15, 0.3);
+            border: 2px solid #f1c40f;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 1.2em;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .language-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .lang-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lang-btn:hover {
+            background: #8e44ad;
+            transform: scale(1.05);
+        }
+        
+        .day-counter {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #f1c40f;
+        }
+        
+        @media (max-width: 768px) {
+            .game-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="game-title">🏝️ لعبة البقاء على قيد الحياة</h1>
+            <p id="game-subtitle">استمتع بمغامرة البقاء في جزيرة نائية!</p>
+        </div>
+        
+        <div class="day-counter">
+            📅 اليوم: <span id="current-day">1</span>
+        </div>
+        
+        <div class="game-stats">
+            <div class="stat-card">
+                ❤️ <span id="health-text">الصحة</span>
+                <div class="stat-value health" id="health-value">100%</div>
+            </div>
+            <div class="stat-card">
+                🍖 <span id="hunger-text">الجوع</span>
+                <div class="stat-value hunger" id="hunger-value">100%</div>
+            </div>
+            <div class="stat-card">
+                💧 <span id="thirst-text">العطش</span>
+                <div class="stat-value thirst" id="thirst-value">100%</div>
+            </div>
+            <div class="stat-card">
+                ⚡ <span id="energy-text">الطاقة</span>
+                <div class="stat-value energy" id="energy-value">100%</div>
+            </div>
+        </div>
+        
+        <div class="inventory">
+            <strong>🎒 <span id="inventory-text">المعدات:</span></strong>
+            <div class="inventory-items" id="inventory-items">
+                <div class="inventory-item">لا توجد معدات</div>
+            </div>
+        </div>
+        
+        <div class="ad-space" id="ad-space">
+            📢 مساحة الإعلانات - دعم المطور
+        </div>
+        
+        <div class="game-message" id="game-message">
+            🎮 ابدأ رحلتك في الجزيرة النائية! اختر إجراءً للبدء.
+        </div>
+        
+        <div class="language-buttons">
+            <button class="lang-btn" onclick="changeLanguage('ar')">العربية 🇸🇦</button>
+            <button class="lang-btn" onclick="changeLanguage('en')">English 🇺🇸</button>
+            <button class="lang-btn" onclick="changeLanguage('fr')">Français 🇫🇷</button>
+            <button class="lang-btn" onclick="changeLanguage('es')">Español 🇪🇸</button>
+            <button class="lang-btn" onclick="changeLanguage('it')">Italiano 🇮🇹</button>
+        </div>
+        
+        <div class="game-actions">
+            <button class="action-btn" onclick="gameAction('explore')">
+                🔍 <span id="action-explore">استكشاف الجزيرة</span>
+            </button>
+            <button class="action-btn" onclick="gameAction('hunt')">
+                🏹 <span id="action-hunt">الصيد</span>
+            </button>
+            <button class="action-btn" onclick="gameAction('fish')">
+                🎣 <span id="action-fish">صيد السمك</span>
+            </button>
+            <button class="action-btn" onclick="gameAction('rest')">
+                🛌 <span id="action-rest">الراحة</span>
+            </button>
+            <button class="action-btn" onclick="gameAction('drink')">
+                💧 <span id="action-drink">شرب الماء</span>
+            </button>
+            <button class="action-btn" onclick="gameAction('craft')">
+                ⚒️ <span id="action-craft">صنع الأدوات</span>
+            </button>
+            <button class="action-btn" onclick="showMap()">
+                🗺️ <span id="action-map">خريطة الجزيرة</span>
+            </button>
+            <button class="action-btn" onclick="showAchievements()">
+                🏆 <span id="action-achievements">الإنجازات</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ترجمات اللعبة
+        const translations = {
+            ar: {
+                title: "🏝️ لعبة البقاء على قيد الحياة",
+                subtitle: "استمتع بمغامرة البقاء في جزيرة نائية!",
+                health: "الصحة",
+                hunger: "الجوع", 
+                thirst: "العطش",
+                energy: "الطاقة",
+                inventory: "المعدات",
+                explore: "استكشاف الجزيرة",
+                hunt: "الصيد",
+                fish: "صيد السمك", 
+                rest: "الراحة",
+                drink: "شرب الماء",
+                craft: "صنع الأدوات",
+                map: "خريطة الجزيرة",
+                achievements: "الإنجازات",
+                noItems: "لا توجد معدات",
+                adMessage: "📢 مساحة الإعلانات - دعم المطور"
+            },
+            en: {
+                title: "🏝️ Survival Game",
+                subtitle: "Enjoy the survival adventure on a remote island!",
+                health: "Health",
+                hunger: "Hunger",
+                thirst: "Thirst", 
+                energy: "Energy",
+                inventory: "Inventory",
+                explore: "Explore Island",
+                hunt: "Hunt",
+                fish: "Fishing",
+                rest: "Rest",
+                drink: "Drink Water",
+                craft: "Craft Tools", 
+                map: "Island Map",
+                achievements: "Achievements",
+                noItems: "No items",
+                adMessage: "📢 Ad Space - Support Developer"
+            },
+            fr: {
+                title: "🏝️ Jeu de Survie",
+                subtitle: "Profitez de l'aventure de survie sur une île déserte!",
+                health: "Santé",
+                hunger: "Faim",
+                thirst: "Soif",
+                energy: "Énergie",
+                inventory: "Inventaire",
+                explore: "Explorer l'Île",
+                hunt: "Chasser",
+                fish: "Pêcher",
+                rest: "Se Reposer",
+                drink: "Boire de l'Eau",
+                craft: "Fabriquer des Outils",
+                map: "Carte de l'Île",
+                achievements: "Succès",
+                noItems: "Aucun objet",
+                adMessage: "📢 Espace Publicitaire - Soutenir le Développeur"
+            },
+            es: {
+                title: "🏝️ Juego de Supervivencia", 
+                subtitle: "¡Disfruta la aventura de supervivencia en una isla remota!",
+                health: "Salud",
+                hunger: "Hambre",
+                thirst: "Sed",
+                energy: "Energía",
+                inventory: "Inventario",
+                explore: "Explorar Isla",
+                hunt: "Cazar",
+                fish: "Pescar",
+                rest: "Descansar",
+                drink: "Beber Agua",
+                craft: "Fabricar Herramientas",
+                map: "Mapa de la Isla",
+                achievements: "Logros",
+                noItems: "Sin objetos",
+                adMessage: "📢 Espacio Publicitario - Apoyar al Desarrollador"
+            },
+            it: {
+                title: "🏝️ Gioco di Sopravvivenza",
+                subtitle: "Goditi l'avventura di sopravvivenza su un'isola remota!",
+                health: "Salute",
+                hunger: "Fame",
+                thirst: "Setè",
+                energy: "Energia",
+                inventory: "Inventario",
+                explore: "Esplora Isola",
+                hunt: "Cacciare",
+                fish: "Pescare",
+                rest: "Riposare",
+                drink: "Bere Acqua",
+                craft: "Creare Strumenti",
+                map: "Mappa dell'Isola",
+                achievements: "Achievement",
+                noItems: "Nessun oggetto", 
+                adMessage: "📢 Spazio Pubblicitario - Supporta lo Sviluppatore"
+            }
+        };
+
+        // حالة اللعبة
+        let gameState = {
+            day: 1,
+            health: 100,
+            hunger: 100,
+            thirst: 100,
+            energy: 100,
+            inventory: [],
+            currentLanguage: 'ar'
+        };
+
+        // تحديث واجهة اللعبة
+        function updateUI() {
+            // تحديث الإحصائيات
+            document.getElementById('health-value').textContent = gameState.health + '%';
+            document.getElementById('hunger-value').textContent = gameState.hunger + '%';
+            document.getElementById('thirst-value').textContent = gameState.thirst + '%';
+            document.getElementById('energy-value').textContent = gameState.energy + '%';
+            document.getElementById('current-day').textContent = gameState.day;
+            
+            // تحديث المعدات
+            const inventoryElement = document.getElementById('inventory-items');
+            if (gameState.inventory.length === 0) {
+                inventoryElement.innerHTML = `<div class="inventory-item">${translations[gameState.currentLanguage].noItems}</div>`;
+            } else {
+                inventoryElement.innerHTML = gameState.inventory.map(item => 
+                    `<div class="inventory-item">${item}</div>`
+                ).join('');
+            }
+        }
+
+        // تغيير اللغة
+        function changeLanguage(lang) {
+            gameState.currentLanguage = lang;
+            updateLanguage();
+            showMessage(`🌐 تم تغيير اللغة إلى ${getLanguageName(lang)}`);
+        }
+
+        function getLanguageName(lang) {
+            const names = {
+                'ar': 'العربية',
+                'en': 'الإنجليزية', 
+                'fr': 'الفرنسية',
+                'es': 'الإسبانية',
+                'it': 'الإيطالية'
+            };
+            return names[lang];
+        }
+
+        // تحديث النصوص حسب اللغة
+        function updateLanguage() {
+            const lang = gameState.currentLanguage;
+            const t = translations[lang];
+            
+            document.getElementById('game-title').textContent = t.title;
+            document.getElementById('game-subtitle').textContent = t.subtitle;
+            document.getElementById('health-text').textContent = t.health;
+            document.getElementById('hunger-text').textContent = t.hunger;
+            document.getElementById('thirst-text').textContent = t.thirst;
+            document.getElementById('energy-text').textContent = t.energy;
+            document.getElementById('inventory-text').textContent = t.inventory;
+            document.getElementById('action-explore').textContent = t.explore;
+            document.getElementById('action-hunt').textContent = t.hunt;
+            document.getElementById('action-fish').textContent = t.fish;
+            document.getElementById('action-rest').textContent = t.rest;
+            document.getElementById('action-drink').textContent = t.drink;
+            document.getElementById('action-craft').textContent = t.craft;
+            document.getElementById('action-map').textContent = t.map;
+            document.getElementById('action-achievements').textContent = t.achievements;
+            document.getElementById('ad-space').textContent = t.adMessage;
+        }
+
+        // إجراءات اللعبة
+        function gameAction(action) {
+            let message = "";
+            
+            switch(action) {
+                case 'explore':
+                    if (gameState.energy >= 10) {
+                        gameState.energy -= 10;
+                        gameState.hunger -= 5;
+                        gameState.thirst -= 5;
+                        
+                        const foundItems = ['لا شيء', 'حيوان', 'ماء نظيف', 'سمكة', 'أداة مفيدة'];
+                        const found = foundItems[Math.floor(Math.random() * foundItems.length)];
+                        
+                        if (found !== 'لا شيء') {
+                            gameState.inventory.push(found);
+                            message = `🔍 استكشفت الجزيرة وعثرت على: ${found}!`;
+                        } else {
+                            message = "😞 لم تعثر على شيء أثناء الاستكشاف";
+                        }
+                    } else {
+                        message = "💤 طاقتك منخفضة جداً، تحتاج للراحة!";
+                    }
+                    break;
+                    
+                case 'hunt':
+                    if (gameState.energy >= 20) {
+                        gameState.energy -= 20;
+                        gameState.hunger -= 10;
+                        
+                        if (Math.random() > 0.3) {
+                            gameState.hunger = Math.min(100, gameState.hunger + 30);
+                            gameState.inventory.push('حيوان');
+                            message = "🎯 نجحت في الصيد! حصلت على حيوان!";
+                        } else {
+                            message = "💨 الحيوان هرب! حاول مرة أخرى";
+                        }
+                    } else {
+                        message = "💤 طاقتك منخفضة جداً للصيد!";
+                    }
+                    break;
+                    
+                case 'fish':
+                    if (gameState.energy >= 15) {
+                        gameState.energy -= 15;
+                        
+                        if (Math.random() > 0.4) {
+                            gameState.hunger = Math.min(100, gameState.hunger + 20);
+                            gameState.inventory.push('سمكة');
+                            message = "🐟 صيد ناجح! حصلت على سمكة!";
+                        } else {
+                            message = "😞 لم تصطد أي سمكة اليوم";
+                        }
+                    } else {
+                        message = "💤 طاقتك منخفضة جداً للصيد!";
+                    }
+                    break;
+                    
+                case 'rest':
+                    gameState.energy = Math.min(100, gameState.energy + 40);
+                    gameState.health = Math.min(100, gameState.health + 10);
+                    message = "💤 استراحة جيدة! استرجعت الطاقة والصحة!";
+                    break;
+                    
+                case 'drink':
+                    gameState.thirst = Math.min(100, gameState.thirst + 30);
+                    message = "💦 شربت الماء! العطش تحسن!";
+                    break;
+                    
+                case 'craft':
+                    if (gameState.energy >= 10) {
+                        gameState.energy -= 10;
+                        const tools = ['سكين', 'فأس', 'مأوى', 'شبكة صيد'];
+                        const tool = tools[Math.floor(Math.random() * tools.length)];
+                        gameState.inventory.push(tool);
+                        message = `🛠️ صنعت: ${tool}!`;
+                    } else {
+                        message = "💤 طاقتك منخفضة جداً للصنع!";
+                    }
+                    break;
+            }
+
+            // تحديث الإحصائيات التلقائية
+            gameState.day++;
+            gameState.hunger = Math.max(0, gameState.hunger - 2);
+            gameState.thirst = Math.max(0, gameState.thirst - 3);
+            gameState.energy = Math.max(0, gameState.energy - 1);
+            
+            // التحقق من الصحة
+            if (gameState.hunger <= 0 || gameState.thirst <= 0) {
+                gameState.health -= 10;
+            }
+            
+            // التحقق من نهاية اللعبة
+            if (gameState.health <= 0) {
+                message = "💀 انتهت اللعبة! لقد ماتت من الجوع أو العطش!";
+                setTimeout(() => {
+                    if(confirm('💀 انتهت اللعبة! هل تريد البدء من جديد؟')) {
+                        resetGame();
+                    }
+                }, 1000);
+            } else if (gameState.day >= 10) {
+                message = "🎉 مبروك! نجحت في البقاء 10 أيام وتم إنقاذك!";
+                setTimeout(() => {
+                    if(confirm('🎉 فزت باللعبة! هل تريد اللعب مرة أخرى؟')) {
+                        resetGame();
+                    }
+                }, 1000);
+            }
+            
+            showMessage(message);
+            updateUI();
+            
+            // عرض إعلان بين الحين والآخر
+            if(Math.random() > 0.7) {
+                showAd();
+            }
+        }
+
+        // عرض رسالة
+        function showMessage(msg) {
+            document.getElementById('game-message').textContent = msg;
+        }
+
+        // عرض إعلان
+        function showAd() {
+            const ads = [
+                "🪙 إعلان: موارد إضافية متاحة!",
+                "📱 إعلان: تطبيقات جديدة رائعة!",
+                "🎁 إعلان: عروض حصرية للاعبين!",
+                "💰 إعلان: ادعم المطور لمزيد من الميزات!",
+                "🛒 إعلان: منتجات بقاء حقيقية!"
+            ];
+            const randomAd = ads[Math.floor(Math.random() * ads.length)];
+            document.getElementById('ad-space').textContent = "📢 " + randomAd;
+            
+            // مكافأة للمشاهدة
+            gameState.energy += 5;
+            gameState.health += 3;
+            showMessage("⚡ +5 طاقة و +3 صحة لمشاهدة الإعلان!");
+            updateUI();
+        }
+
+        // عرض الخريطة
+        function showMap() {
+            showMessage(`🗺️ خريطة الجزيرة:
+            
+🌴🏖️🌊🌴🏖️
+🏕️🎣🐾💧🌳
+🌳🏔️🔥🪵🐍
+🗿🛖🎯🪨🌿
+
+المناطق:
+🏖️ الشاطئ - الصيد والاستكشاف
+🌳 الغابة - الصيد وجمع الأخشاب  
+🏔️ الجبل - الموارد والمأوى
+💧 النهر - ماء نظيف`);
+        }
+
+        // عرض الإنجازات
+        function showAchievements() {
+            let achievements = [];
+            
+            if (gameState.day >= 3) achievements.push("🥉 البقاء 3 أيام");
+            if (gameState.day >= 7) achievements.push("🥈 البقاء 7 أيام");
+            if (gameState.day >= 10) achievements.push("🥇 البقاء 10 أيام");
+            
+            const animalCount = gameState.inventory.filter(item => item.includes('حيوان')).length;
+            if (animalCount >= 2) achievements.push("🏹 صياد ماهر");
+            
+            const fishCount = gameState.inventory.filter(item => item.includes('سمك')).length;
+            if (fishCount >= 3) achievements.push("🎣 صياد أسماك");
+            
+            const toolCount = gameState.inventory.filter(item => 
+                ['سكين', 'فأس', 'مأوى', 'شبكة'].some(tool => item.includes(tool))
+            ).length;
+            if (toolCount >= 2) achievements.push("⚒️ صانع أدوات");
+            
+            if (achievements.length === 0) {
+                showMessage("📝 لم تحقق أي إنجازات بعد! استمر في اللعب!");
+            } else {
+                showMessage("🏆 إنجازاتك:\n" + achievements.map(ach => "✅ " + ach).join('\n'));
+            }
+        }
+
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            gameState = {
+                day: 1,
+                health: 100,
+                hunger: 100, 
+                thirst: 100,
+                energy: 100,
+                inventory: [],
+                currentLanguage: gameState.currentLanguage
+            };
+            updateUI();
+            showMessage("🎮 بدأت لعبة جديدة! حظاً موفقاً!");
+        }
+
+        // التهيئة الأولية
+        updateUI();
+        updateLanguage();
+    </script>
+</body>
+</html>
