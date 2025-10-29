@@ -3,43 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏝️ لعبة البقاء على قيد الحياة - Survival Game</title>
+    <title>🏚️ The Walking Dead - Survival Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #8B0000;
+            --secondary: #2F4F4F;
+            --accent: #FF4500;
+            --dark: #1A1A1A;
+            --light: #F5F5F5;
+            --warning: #FFD700;
+            --danger: #DC143C;
         }
         
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
+            background: linear-gradient(135deg, #2c0b0e, #1a1a2e, #16213e);
+            color: var(--light);
             min-height: 100vh;
-            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* خلفية متحركة */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .zombie {
+            position: absolute;
+            font-size: 2em;
+            animation: float 20s infinite linear;
+            opacity: 0.1;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(-100px); }
+            100% { transform: translateY(-100px) translateX(100vw); }
+        }
+        
+        .blood-splatter {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0.1;
+            animation: pulse 4s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(1.1); }
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         
         .header {
             text-align: center;
             margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            border: 2px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         .header h1 {
-            font-size: 2.5em;
+            font-size: 3em;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            background: linear-gradient(45deg, var(--accent), var(--warning));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 69, 0, 0.8), 0 0 30px rgba(255, 69, 0, 0.6); }
         }
         
         .game-stats {
@@ -50,29 +126,62 @@
         }
         
         .stat-card {
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(139, 0, 0, 0.8), rgba(47, 79, 79, 0.8));
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 69, 0, 0.3);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+            animation: progress 2s infinite;
         }
         
         .stat-value {
             font-size: 2em;
             font-weight: bold;
             margin-top: 10px;
+            text-shadow: 0 0 10px currentColor;
         }
         
-        .health { color: #ff6b6b; }
-        .hunger { color: #ffd93d; }
-        .thirst { color: #4ecdc4; }
-        .energy { color: #6c5ce7; }
+        .health { color: #FF6B6B; }
+        .hunger { color: #FFD93D; }
+        .thirst { color: #4ECDC4; }
+        .energy { color: #6C5CE7; }
         
         .inventory {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.7);
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 10px;
             margin-bottom: 25px;
+            border: 1px solid var(--secondary);
+            position: relative;
+        }
+        
+        .inventory::after {
+            content: '🎒';
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: var(--dark);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 1.2em;
         }
         
         .inventory-items {
@@ -83,52 +192,45 @@
         }
         
         .inventory-item {
-            background: #e74c3c;
+            background: linear-gradient(135deg, var(--primary), var(--danger));
             padding: 10px 20px;
-            border-radius: 25px;
+            border-radius: 20px;
             font-size: 14px;
+            animation: itemAppear 0.5s ease;
+            position: relative;
+        }
+        
+        @keyframes itemAppear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .inventory-item::before {
+            content: '✨';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.8em;
         }
         
         .ad-space {
-            background: linear-gradient(45deg, #f39c12, #e67e22);
+            background: linear-gradient(135deg, #f39c12, #e67e22);
             color: #2c3e50;
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
             margin: 25px 0;
             font-weight: bold;
             font-size: 1.1em;
-        }
-        
-        .game-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        
-        .action-btn {
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 2px dashed #2c3e50;
+            animation: pulse 2s infinite;
         }
         
         .game-message {
-            background: rgba(241, 196, 15, 0.3);
-            border: 2px solid #f1c40f;
+            background: rgba(241, 196, 15, 0.2);
+            border: 2px solid var(--warning);
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 10px;
             margin: 25px 0;
             text-align: center;
             font-size: 1.2em;
@@ -136,6 +238,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-message::before {
+            content: '💀';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.5em;
+            opacity: 0.3;
         }
         
         .language-buttons {
@@ -144,7 +257,7 @@
         }
         
         .lang-btn {
-            background: #9b59b6;
+            background: linear-gradient(135deg, var(--secondary), var(--dark));
             color: white;
             border: none;
             padding: 12px 25px;
@@ -152,18 +265,107 @@
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-weight: bold;
+            border: 1px solid var(--primary);
         }
         
         .lang-btn:hover {
-            background: #8e44ad;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(139, 0, 0, 0.4);
         }
         
         .day-counter {
             text-align: center;
             font-size: 1.5em;
             margin: 20px 0;
-            color: #f1c40f;
+            color: var(--warning);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        .game-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, var(--dark), var(--secondary));
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .action-btn:hover::before {
+            left: 100%;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(139, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+        }
+        
+        .action-btn:active {
+            transform: translateY(0);
+        }
+        
+        .character {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 4em;
+            animation: characterMove 3s infinite alternate;
+            z-index: 100;
+            filter: drop-shadow(0 0 10px rgba(255, 69, 0, 0.5));
+        }
+        
+        @keyframes characterMove {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        .emergency-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 20, 60, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+            animation: alertPulse 0.5s infinite;
+            display: none;
+        }
+        
+        @keyframes alertPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
         }
         
         @media (max-width: 768px) {
@@ -176,16 +378,36 @@
             }
             
             .container {
-                padding: 15px;
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .character {
+                font-size: 2.5em;
             }
         }
     </style>
 </head>
 <body>
+    <!-- خلفية متحركة -->
+    <div class="background-animation" id="backgroundAnimation"></div>
+    
+    <!-- شخصية اللعبة -->
+    <div class="character" id="character">🧟</div>
+    
+    <!-- تنبيه الطوارئ -->
+    <div class="emergency-alert" id="emergencyAlert">
+        <h2>⚠️ تحذير! ⚠️</h2>
+        <p id="alertMessage"></p>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1 id="game-title">🏝️ لعبة البقاء على قيد الحياة</h1>
-            <p id="game-subtitle">استمتع بمغامرة البقاء في جزيرة نائية!</p>
+            <h1 id="game-title">🧟 THE WALKING DEAD</h1>
+            <p id="game-subtitle">معركة البقاء في عالم الزومبي</p>
         </div>
         
         <div class="day-counter">
@@ -214,7 +436,8 @@
         <div class="inventory">
             <strong>🎒 <span id="inventory-text">المعدات:</span></strong>
             <div class="inventory-items" id="inventory-items">
-                <div class="inventory-item">لا توجد معدات</div>
+                <div class="inventory-item">سكين الصدأ</div>
+                <div class="inventory-item">زجاجة ماء</div>
             </div>
         </div>
         
@@ -223,7 +446,7 @@
         </div>
         
         <div class="game-message" id="game-message">
-            🎮 ابدأ رحلتك في الجزيرة النائية! اختر إجراءً للبدء.
+            🎮 ابدأ رحلتك في عالم الزومبي! اختر إجراءً للبدء.
         </div>
         
         <div class="language-buttons">
@@ -236,25 +459,25 @@
         
         <div class="game-actions">
             <button class="action-btn" onclick="gameAction('explore')">
-                🔍 <span id="action-explore">استكشاف الجزيرة</span>
+                🔍 <span id="action-explore">استكشاف المنطقة</span>
             </button>
             <button class="action-btn" onclick="gameAction('hunt')">
-                🏹 <span id="action-hunt">الصيد</span>
+                🏹 <span id="action-hunt">مطاردة الزومبي</span>
             </button>
             <button class="action-btn" onclick="gameAction('fish')">
-                🎣 <span id="action-fish">صيد السمك</span>
+                🎣 <span id="action-fish">بحث عن موارد</span>
             </button>
             <button class="action-btn" onclick="gameAction('rest')">
-                🛌 <span id="action-rest">الراحة</span>
+                🛌 <span id="action-rest">الراحة في الملجأ</span>
             </button>
             <button class="action-btn" onclick="gameAction('drink')">
                 💧 <span id="action-drink">شرب الماء</span>
             </button>
             <button class="action-btn" onclick="gameAction('craft')">
-                ⚒️ <span id="action-craft">صنع الأدوات</span>
+                ⚒️ <span id="action-craft">صنع الأسلحة</span>
             </button>
             <button class="action-btn" onclick="showMap()">
-                🗺️ <span id="action-map">خريطة الجزيرة</span>
+                🗺️ <span id="action-map">خريطة المنطقة</span>
             </button>
             <button class="action-btn" onclick="showAchievements()">
                 🏆 <span id="action-achievements">الإنجازات</span>
@@ -263,99 +486,124 @@
     </div>
 
     <script>
+        // إنشاء خلفية متحركة
+        function createBackground() {
+            const background = document.getElementById('backgroundAnimation');
+            const zombies = ['🧟', '🧟‍♂️', '🧟‍♀️', '💀', '☠️'];
+            
+            for (let i = 0; i < 15; i++) {
+                const zombie = document.createElement('div');
+                zombie.className = 'zombie';
+                zombie.textContent = zombies[Math.floor(Math.random() * zombies.length)];
+                zombie.style.left = Math.random() * 100 + 'vw';
+                zombie.style.animationDelay = Math.random() * 20 + 's';
+                zombie.style.fontSize = (Math.random() * 2 + 1) + 'em';
+                background.appendChild(zombie);
+            }
+            
+            for (let i = 0; i < 10; i++) {
+                const blood = document.createElement('div');
+                blood.className = 'blood-splatter';
+                blood.style.left = Math.random() * 100 + 'vw';
+                blood.style.top = Math.random() * 100 + 'vh';
+                blood.style.animationDelay = Math.random() * 4 + 's';
+                background.appendChild(blood);
+            }
+        }
+
         // ترجمات اللعبة
         const translations = {
             ar: {
-                title: "🏝️ لعبة البقاء على قيد الحياة",
-                subtitle: "استمتع بمغامرة البقاء في جزيرة نائية!",
+                title: "🧟 THE WALKING DEAD",
+                subtitle: "معركة البقاء في عالم الزومبي",
                 health: "الصحة",
                 hunger: "الجوع", 
                 thirst: "العطش",
                 energy: "الطاقة",
                 inventory: "المعدات",
-                explore: "استكشاف الجزيرة",
-                hunt: "الصيد",
-                fish: "صيد السمك", 
-                rest: "الراحة",
+                explore: "استكشاف المنطقة",
+                hunt: "مطاردة الزومبي",
+                fish: "بحث عن موارد", 
+                rest: "الراحة في الملجأ",
                 drink: "شرب الماء",
-                craft: "صنع الأدوات",
-                map: "خريطة الجزيرة",
+                craft: "صنع الأسلحة",
+                map: "خريطة المنطقة",
                 achievements: "الإنجازات",
                 noItems: "لا توجد معدات",
                 adMessage: "📢 مساحة الإعلانات - دعم المطور"
             },
             en: {
-                title: "🏝️ Survival Game",
-                subtitle: "Enjoy the survival adventure on a remote island!",
+                title: "🧟 THE WALKING DEAD",
+                subtitle: "Survival Battle in Zombie World",
                 health: "Health",
                 hunger: "Hunger",
                 thirst: "Thirst", 
                 energy: "Energy",
                 inventory: "Inventory",
-                explore: "Explore Island",
-                hunt: "Hunt",
-                fish: "Fishing",
-                rest: "Rest",
+                explore: "Explore Area",
+                hunt: "Hunt Zombies",
+                fish: "Search Resources",
+                rest: "Rest in Shelter",
                 drink: "Drink Water",
-                craft: "Craft Tools", 
-                map: "Island Map",
+                craft: "Craft Weapons", 
+                map: "Area Map",
                 achievements: "Achievements",
                 noItems: "No items",
                 adMessage: "📢 Ad Space - Support Developer"
             },
             fr: {
-                title: "🏝️ Jeu de Survie",
-                subtitle: "Profitez de l'aventure de survie sur une île déserte!",
+                title: "🧟 THE WALKING DEAD",
+                subtitle: "Bataille de Survie dans le Monde Zombie",
                 health: "Santé",
                 hunger: "Faim",
                 thirst: "Soif",
                 energy: "Énergie",
                 inventory: "Inventaire",
-                explore: "Explorer l'Île",
-                hunt: "Chasser",
-                fish: "Pêcher",
-                rest: "Se Reposer",
+                explore: "Explorer la Zone",
+                hunt: "Chasser les Zombies",
+                fish: "Chercher des Ressources",
+                rest: "Se Reposer dans l'Abri",
                 drink: "Boire de l'Eau",
-                craft: "Fabriquer des Outils",
-                map: "Carte de l'Île",
+                craft: "Fabriquer des Armes",
+                map: "Carte de la Zone",
                 achievements: "Succès",
                 noItems: "Aucun objet",
                 adMessage: "📢 Espace Publicitaire - Soutenir le Développeur"
             },
             es: {
-                title: "🏝️ Juego de Supervivencia", 
-                subtitle: "¡Disfruta la aventura de supervivencia en una isla remota!",
+                title: "🧟 THE WALKING DEAD", 
+                subtitle: "Batalla de Supervivencia en el Mundo Zombie",
                 health: "Salud",
                 hunger: "Hambre",
                 thirst: "Sed",
                 energy: "Energía",
                 inventory: "Inventario",
-                explore: "Explorar Isla",
-                hunt: "Cazar",
-                fish: "Pescar",
-                rest: "Descansar",
+                explore: "Explorar Área",
+                hunt: "Cazar Zombies",
+                fish: "Buscar Recursos",
+                rest: "Descansar en Refugio",
                 drink: "Beber Agua",
-                craft: "Fabricar Herramientas",
-                map: "Mapa de la Isla",
+                craft: "Fabricar Armas",
+                map: "Mapa del Área",
                 achievements: "Logros",
                 noItems: "Sin objetos",
                 adMessage: "📢 Espacio Publicitario - Apoyar al Desarrollador"
             },
             it: {
-                title: "🏝️ Gioco di Sopravvivenza",
-                subtitle: "Goditi l'avventura di sopravvivenza su un'isola remota!",
+                title: "🧟 THE WALKING DEAD",
+                subtitle: "Battaglia di Sopravvivenza nel Mondo Zombie",
                 health: "Salute",
                 hunger: "Fame",
                 thirst: "Setè",
                 energy: "Energia",
                 inventory: "Inventario",
-                explore: "Esplora Isola",
-                hunt: "Cacciare",
-                fish: "Pescare",
-                rest: "Riposare",
+                explore: "Esplora Area",
+                hunt: "Cacciare Zombie",
+                fish: "Cercare Risorse",
+                rest: "Riposare nel Rifugio",
                 drink: "Bere Acqua",
-                craft: "Creare Strumenti",
-                map: "Mappa dell'Isola",
+                craft: "Creare Armi",
+                map: "Mappa dell'Area",
                 achievements: "Achievement",
                 noItems: "Nessun oggetto", 
                 adMessage: "📢 Spazio Pubblicitario - Supporta lo Sviluppatore"
@@ -369,20 +617,19 @@
             hunger: 100,
             thirst: 100,
             energy: 100,
-            inventory: [],
-            currentLanguage: 'ar'
+            inventory: ['سكين الصدأ', 'زجاجة ماء'],
+            currentLanguage: 'ar',
+            zombiesKilled: 0
         };
 
         // تحديث واجهة اللعبة
         function updateUI() {
-            // تحديث الإحصائيات
             document.getElementById('health-value').textContent = gameState.health + '%';
             document.getElementById('hunger-value').textContent = gameState.hunger + '%';
             document.getElementById('thirst-value').textContent = gameState.thirst + '%';
             document.getElementById('energy-value').textContent = gameState.energy + '%';
             document.getElementById('current-day').textContent = gameState.day;
             
-            // تحديث المعدات
             const inventoryElement = document.getElementById('inventory-items');
             if (gameState.inventory.length === 0) {
                 inventoryElement.innerHTML = `<div class="inventory-item">${translations[gameState.currentLanguage].noItems}</div>`;
@@ -391,6 +638,38 @@
                     `<div class="inventory-item">${item}</div>`
                 ).join('');
             }
+            
+            // تحديث شخصية الزومبي
+            updateCharacter();
+        }
+
+        // تحديث شخصية الزومبي
+        function updateCharacter() {
+            const character = document.getElementById('character');
+            if (gameState.health > 70) {
+                character.textContent = '🧟';
+                character.style.color = '#4ECDC4';
+            } else if (gameState.health > 30) {
+                character.textContent = '🧟‍♂️';
+                character.style.color = '#FFD93D';
+            } else {
+                character.textContent = '🧟‍♀️';
+                character.style.color = '#FF6B6B';
+                character.style.animation = 'characterMove 1s infinite alternate';
+            }
+        }
+
+        // عرض تنبيه
+        function showAlert(message, duration = 3000) {
+            const alert = document.getElementById('emergencyAlert');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            alertMessage.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, duration);
         }
 
         // تغيير اللغة
@@ -445,12 +724,15 @@
                         gameState.hunger -= 5;
                         gameState.thirst -= 5;
                         
-                        const foundItems = ['لا شيء', 'حيوان', 'ماء نظيف', 'سمكة', 'أداة مفيدة'];
+                        const foundItems = ['لا شيء', 'علبة طعام', 'ماء نظيف', 'مضاد حيوي', 'سلاح ناري', 'بطارية'];
                         const found = foundItems[Math.floor(Math.random() * foundItems.length)];
                         
                         if (found !== 'لا شيء') {
                             gameState.inventory.push(found);
-                            message = `🔍 استكشفت الجزيرة وعثرت على: ${found}!`;
+                            message = `🔍 استكشفت المنطقة وعثرت على: ${found}!`;
+                            if (found === 'سلاح ناري') {
+                                showAlert('🎯 وجدت سلاح ناري! فرصتك في البقاء زادت!');
+                            }
                         } else {
                             message = "😞 لم تعثر على شيء أثناء الاستكشاف";
                         }
@@ -464,15 +746,18 @@
                         gameState.energy -= 20;
                         gameState.hunger -= 10;
                         
-                        if (Math.random() > 0.3) {
+                        if (Math.random() > 0.4) {
                             gameState.hunger = Math.min(100, gameState.hunger + 30);
-                            gameState.inventory.push('حيوان');
-                            message = "🎯 نجحت في الصيد! حصلت على حيوان!";
+                            gameState.zombiesKilled++;
+                            message = "🎯 نجحت في قتل زومبي! حصلت على طعام!";
+                            showAlert('💀 قتلت زومبي! +30 طاقة');
                         } else {
-                            message = "💨 الحيوان هرب! حاول مرة أخرى";
+                            gameState.health -= 10;
+                            message = "💨 الزومبي هاجمك! فقدت 10% صحة!";
+                            showAlert('⚠️ تعرضت لهجوم! -10% صحة', 4000);
                         }
                     } else {
-                        message = "💤 طاقتك منخفضة جداً للصيد!";
+                        message = "💤 طاقتك منخفضة جداً للمطاردة!";
                     }
                     break;
                     
@@ -482,20 +767,20 @@
                         
                         if (Math.random() > 0.4) {
                             gameState.hunger = Math.min(100, gameState.hunger + 20);
-                            gameState.inventory.push('سمكة');
-                            message = "🐟 صيد ناجح! حصلت على سمكة!";
+                            gameState.inventory.push('مواد طبية');
+                            message = "🔍 بحث ناجح! حصلت على مواد طبية!";
                         } else {
-                            message = "😞 لم تصطد أي سمكة اليوم";
+                            message = "😞 لم تجد أي موارد اليوم";
                         }
                     } else {
-                        message = "💤 طاقتك منخفضة جداً للصيد!";
+                        message = "💤 طاقتك منخفضة جداً للبحث!";
                     }
                     break;
                     
                 case 'rest':
                     gameState.energy = Math.min(100, gameState.energy + 40);
                     gameState.health = Math.min(100, gameState.health + 10);
-                    message = "💤 استراحة جيدة! استرجعت الطاقة والصحة!";
+                    message = "💤 استراحة جيدة في الملجأ! استرجعت الطاقة والصحة!";
                     break;
                     
                 case 'drink':
@@ -506,10 +791,11 @@
                 case 'craft':
                     if (gameState.energy >= 10) {
                         gameState.energy -= 10;
-                        const tools = ['سكين', 'فأس', 'مأوى', 'شبكة صيد'];
+                        const tools = ['قنبلة دخان', 'فأس معزز', 'درع واقي', 'مصل مضاد'];
                         const tool = tools[Math.floor(Math.random() * tools.length)];
                         gameState.inventory.push(tool);
                         message = `🛠️ صنعت: ${tool}!`;
+                        showAlert(`🛡️ ${tool} جاهز للاستخدام!`);
                     } else {
                         message = "💤 طاقتك منخفضة جداً للصنع!";
                     }
@@ -518,30 +804,44 @@
 
             // تحديث الإحصائيات التلقائية
             gameState.day++;
-            gameState.hunger = Math.max(0, gameState.hunger - 2);
-            gameState.thirst = Math.max(0, gameState.thirst - 3);
-            gameState.energy = Math.max(0, gameState.energy - 1);
+            gameState.hunger = Math.max(0, gameState.hunger - 3);
+            gameState.thirst = Math.max(0, gameState.thirst - 4);
+            gameState.energy = Math.max(0, gameState.energy - 2);
+            
+            // أحداث عشوائية
+            if (Math.random() > 0.7) {
+                const events = [
+                    { message: "🌙 هجوم زومبي ليلي! فقدت موارد.", effect: () => gameState.inventory.pop() },
+                    { message: "🌧️ أمطار غزيرة! الصحة تأثرت.", effect: () => gameState.health -= 5 },
+                    { message: "🎁 وجدت مخبأ سري! موارد إضافية.", effect: () => gameState.inventory.push('مخزون طوارئ') }
+                ];
+                const event = events[Math.floor(Math.random() * events.length)];
+                message += " " + event.message;
+                event.effect();
+            }
             
             // التحقق من الصحة
             if (gameState.hunger <= 0 || gameState.thirst <= 0) {
-                gameState.health -= 10;
+                gameState.health -= 15;
             }
             
             // التحقق من نهاية اللعبة
             if (gameState.health <= 0) {
-                message = "💀 انتهت اللعبة! لقد ماتت من الجوع أو العطش!";
+                message = "💀 انتهت اللعبة! لقد أصبحت زومبي!";
+                showAlert('💀 GAME OVER - لقد ماتت!', 5000);
                 setTimeout(() => {
                     if(confirm('💀 انتهت اللعبة! هل تريد البدء من جديد؟')) {
                         resetGame();
                     }
-                }, 1000);
-            } else if (gameState.day >= 10) {
-                message = "🎉 مبروك! نجحت في البقاء 10 أيام وتم إنقاذك!";
+                }, 2000);
+            } else if (gameState.day >= 15) {
+                message = "🎉 مبروك! نجحت في البقاء 15 يوماً وتم إنقاذك!";
+                showAlert('🎉 فوز! تم إنقاذك بواسطة فريق الإنقاذ!', 5000);
                 setTimeout(() => {
                     if(confirm('🎉 فزت باللعبة! هل تريد اللعب مرة أخرى؟')) {
                         resetGame();
                     }
-                }, 1000);
+                }, 2000);
             }
             
             showMessage(message);
@@ -555,65 +855,68 @@
 
         // عرض رسالة
         function showMessage(msg) {
-            document.getElementById('game-message').textContent = msg;
+            const messageElement = document.getElementById('game-message');
+            messageElement.textContent = msg;
+            messageElement.style.animation = 'none';
+            setTimeout(() => {
+                messageElement.style.animation = 'pulse 0.5s';
+            }, 10);
         }
 
         // عرض إعلان
         function showAd() {
             const ads = [
-                "🪙 إعلان: موارد إضافية متاحة!",
-                "📱 إعلان: تطبيقات جديدة رائعة!",
-                "🎁 إعلان: عروض حصرية للاعبين!",
-                "💰 إعلان: ادعم المطور لمزيد من الميزات!",
-                "🛒 إعلان: منتجات بقاء حقيقية!"
+                "🪙 إعلان: أسلحة إضافية متاحة!",
+                "📱 إعلان: تطبيقات بقاء جديدة!",
+                "🎁 إعلان: عروض حصرية للناجين!",
+                "💰 إعلان: ادعم المطور لمزيد من المحتوى!",
+                "🛒 إعلان: معدات بقاء حقيقية!"
             ];
             const randomAd = ads[Math.floor(Math.random() * ads.length)];
             document.getElementById('ad-space').textContent = "📢 " + randomAd;
             
             // مكافأة للمشاهدة
-            gameState.energy += 5;
-            gameState.health += 3;
-            showMessage("⚡ +5 طاقة و +3 صحة لمشاهدة الإعلان!");
+            gameState.energy += 8;
+            gameState.health += 5;
+            showMessage("⚡ +8 طاقة و +5 صحة لمشاهدة الإعلان!");
             updateUI();
         }
 
         // عرض الخريطة
         function showMap() {
-            showMessage(`🗺️ خريطة الجزيرة:
+            showMessage(`🗺️ خريطة منطقة الزومبي:
             
-🌴🏖️🌊🌴🏖️
-🏕️🎣🐾💧🌳
-🌳🏔️🔥🪵🐍
-🗿🛖🎯🪨🌿
+🏚️🏪🏥🏚️🏪
+🧟🧟🔥💧🧟
+🌳🏔️🛡️🪵🧟
+🗿🏕️🎯🪨🌿
 
 المناطق:
-🏖️ الشاطئ - الصيد والاستكشاف
-🌳 الغابة - الصيد وجمع الأخشاب  
-🏔️ الجبل - الموارد والمأوى
-💧 النهر - ماء نظيف`);
+🏚️ المباني - البحث عن موارد
+🧟 مناطق الزومبي - الخطيرة
+🏥 المستشفى - المواد الطبية
+💧 النهر - الماء
+🏕️ الملجأ - الراحة الآمنة`);
         }
 
         // عرض الإنجازات
         function showAchievements() {
             let achievements = [];
             
-            if (gameState.day >= 3) achievements.push("🥉 البقاء 3 أيام");
-            if (gameState.day >= 7) achievements.push("🥈 البقاء 7 أيام");
-            if (gameState.day >= 10) achievements.push("🥇 البقاء 10 أيام");
+            if (gameState.day >= 5) achievements.push("🥉 البقاء 5 أيام");
+            if (gameState.day >= 10) achievements.push("🥈 البقاء 10 أيام");
+            if (gameState.day >= 15) achievements.push("🥇 البقاء 15 يوماً");
             
-            const animalCount = gameState.inventory.filter(item => item.includes('حيوان')).length;
-            if (animalCount >= 2) achievements.push("🏹 صياد ماهر");
+            if (gameState.zombiesKilled >= 3) achievements.push("🏹 قاتل زومبي");
+            if (gameState.zombiesKilled >= 10) achievements.push("🔫 صياد زومبي محترف");
             
-            const fishCount = gameState.inventory.filter(item => item.includes('سمك')).length;
-            if (fishCount >= 3) achievements.push("🎣 صياد أسماك");
-            
-            const toolCount = gameState.inventory.filter(item => 
-                ['سكين', 'فأس', 'مأوى', 'شبكة'].some(tool => item.includes(tool))
+            const weaponCount = gameState.inventory.filter(item => 
+                ['سلاح', 'فأس', 'قنبلة'].some(tool => item.includes(tool))
             ).length;
-            if (toolCount >= 2) achievements.push("⚒️ صانع أدوات");
+            if (weaponCount >= 2) achievements.push("⚒️ مجهز بالأسلحة");
             
             if (achievements.length === 0) {
-                showMessage("📝 لم تحقق أي إنجازات بعد! استمر في اللعب!");
+                showMessage("📝 لم تحقق أي إنجازات بعد! استمر في البقاء!");
             } else {
                 showMessage("🏆 إنجازاتك:\n" + achievements.map(ach => "✅ " + ach).join('\n'));
             }
@@ -627,16 +930,23 @@
                 hunger: 100, 
                 thirst: 100,
                 energy: 100,
-                inventory: [],
-                currentLanguage: gameState.currentLanguage
+                inventory: ['سكين الصدأ', 'زجاجة ماء'],
+                currentLanguage: gameState.currentLanguage,
+                zombiesKilled: 0
             };
             updateUI();
-            showMessage("🎮 بدأت لعبة جديدة! حظاً موفقاً!");
+            showMessage("🎮 بدأت لعبة جديدة! حظاً موفقاً في البقاء!");
         }
 
         // التهيئة الأولية
+        createBackground();
         updateUI();
         updateLanguage();
+        
+        // رسالة ترحيب متحركة
+        setTimeout(() => {
+            showAlert('🧟 احذر! الزومبي في كل مكان! ابقَ حياً!', 4000);
+        }, 1000);
     </script>
 </body>
 </html>
