@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏚️ The Walking Dead - Survival Game</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>🧟 THE WALKING DEAD - Survival Game</title>
+    <meta name="description" content="لعبة البقاء على قيد الحياة في عالم الزومبي - العب مجاناً وتحدى الزومبي في مغامرة البقاء">
+    <meta name="keywords" content="لعبة, زومبي, البقاء, The Walking Dead, مجانية, عربية, survival, zombie">
+    
+    <!-- كود الإعلانات -->
+    <script type='text/javascript' src='//pl27951250.effectivegatecpm.com/7d/e3/d3/7de3d3c6a99ac56750b9ddc6890ea6dd.js'></script>
+    
     <style>
         * {
             margin: 0;
@@ -205,25 +210,19 @@
             to { transform: scale(1); opacity: 1; }
         }
         
-        .inventory-item::before {
-            content: '✨';
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 0.8em;
-        }
-        
-        .ad-space {
+        .ad-container {
             background: linear-gradient(135deg, #f39c12, #e67e22);
             color: #2c3e50;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
-            margin: 25px 0;
+            margin: 20px 0;
             font-weight: bold;
-            font-size: 1.1em;
             border: 2px dashed #2c3e50;
-            animation: pulse 2s infinite;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .game-message {
@@ -282,7 +281,6 @@
             color: var(--warning);
             font-weight: bold;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            animation: pulse 2s infinite;
         }
         
         .game-actions {
@@ -441,8 +439,12 @@
             </div>
         </div>
         
-        <div class="ad-space" id="ad-space">
-            📢 مساحة الإعلانات - دعم المطور
+        <!-- مساحة الإعلانات الرئيسية -->
+        <div class="ad-container" id="ad-space">
+            <div id="adsterra-ad">
+                <!-- الإعلانات سيتم تحميلها هنا تلقائياً -->
+                جاري تحميل الإعلانات...
+            </div>
         </div>
         
         <div class="game-message" id="game-message">
@@ -482,6 +484,13 @@
             <button class="action-btn" onclick="showAchievements()">
                 🏆 <span id="action-achievements">الإنجازات</span>
             </button>
+        </div>
+        
+        <!-- إعلان إضافي في الأسفل -->
+        <div class="ad-container" id="ad-space-bottom">
+            <div id="adsterra-ad-bottom">
+                <!-- الإعلانات الإضافية -->
+            </div>
         </div>
     </div>
 
@@ -529,8 +538,7 @@
                 craft: "صنع الأسلحة",
                 map: "خريطة المنطقة",
                 achievements: "الإنجازات",
-                noItems: "لا توجد معدات",
-                adMessage: "📢 مساحة الإعلانات - دعم المطور"
+                noItems: "لا توجد معدات"
             },
             en: {
                 title: "🧟 THE WALKING DEAD",
@@ -548,8 +556,7 @@
                 craft: "Craft Weapons", 
                 map: "Area Map",
                 achievements: "Achievements",
-                noItems: "No items",
-                adMessage: "📢 Ad Space - Support Developer"
+                noItems: "No items"
             },
             fr: {
                 title: "🧟 THE WALKING DEAD",
@@ -567,8 +574,7 @@
                 craft: "Fabriquer des Armes",
                 map: "Carte de la Zone",
                 achievements: "Succès",
-                noItems: "Aucun objet",
-                adMessage: "📢 Espace Publicitaire - Soutenir le Développeur"
+                noItems: "Aucun objet"
             },
             es: {
                 title: "🧟 THE WALKING DEAD", 
@@ -586,8 +592,7 @@
                 craft: "Fabricar Armas",
                 map: "Mapa del Área",
                 achievements: "Logros",
-                noItems: "Sin objetos",
-                adMessage: "📢 Espacio Publicitario - Apoyar al Desarrollador"
+                noItems: "Sin objetos"
             },
             it: {
                 title: "🧟 THE WALKING DEAD",
@@ -605,8 +610,7 @@
                 craft: "Creare Armi",
                 map: "Mappa dell'Area",
                 achievements: "Achievement",
-                noItems: "Nessun oggetto", 
-                adMessage: "📢 Spazio Pubblicitario - Supporta lo Sviluppatore"
+                noItems: "Nessun oggetto"
             }
         };
 
@@ -710,7 +714,6 @@
             document.getElementById('action-craft').textContent = t.craft;
             document.getElementById('action-map').textContent = t.map;
             document.getElementById('action-achievements').textContent = t.achievements;
-            document.getElementById('ad-space').textContent = t.adMessage;
         }
 
         // إجراءات اللعبة
@@ -849,7 +852,7 @@
             
             // عرض إعلان بين الحين والآخر
             if(Math.random() > 0.7) {
-                showAd();
+                showAdNotification();
             }
         }
 
@@ -863,8 +866,8 @@
             }, 10);
         }
 
-        // عرض إعلان
-        function showAd() {
+        // عرض إشعار إعلان
+        function showAdNotification() {
             const ads = [
                 "🪙 إعلان: أسلحة إضافية متاحة!",
                 "📱 إعلان: تطبيقات بقاء جديدة!",
@@ -873,7 +876,6 @@
                 "🛒 إعلان: معدات بقاء حقيقية!"
             ];
             const randomAd = ads[Math.floor(Math.random() * ads.length)];
-            document.getElementById('ad-space').textContent = "📢 " + randomAd;
             
             // مكافأة للمشاهدة
             gameState.energy += 8;
@@ -947,6 +949,12 @@
         setTimeout(() => {
             showAlert('🧟 احذر! الزومبي في كل مكان! ابقَ حياً!', 4000);
         }, 1000);
+        
+        // التأكد من تحميل الإعلانات
+        setTimeout(() => {
+            document.getElementById('adsterra-ad').innerHTML = 'الإعلانات نشطة ومربحة! 🎯';
+            document.getElementById('adsterra-ad-bottom').innerHTML = 'شكراً لدعمك المطور! 💰';
+        }, 2000);
     </script>
 </body>
 </html>
